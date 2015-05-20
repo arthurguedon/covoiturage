@@ -12,12 +12,13 @@ mdp VARCHAR(45) NOT NULL, # deux utilisateur different peuvent avoir le meme
 image VARCHAR(45) NOT NULL,  
 
 cagnote INTEGER NOT NULL, 
-id_voiture INTEGER ,
+id_voiture INTEGER,
 
 PRIMARY KEY(id) 
 # FOREIGN KEY (id_voiture) REFERENCES TO voiture(id_voiture)
 #    ON DELETE CASCADE
 #    ON UPDATE RESTRICT 
+
 );
 
 
@@ -33,7 +34,7 @@ annee_mise_en_fonction INTEGER NOT NULL,
 id_voiture INTEGER NOT NULL AUTO_INCREMENT, 
 id_conducteur VARCHAR(45) NOT NULL, 
 
-PRIMARY KEY(id_voiture),
+PRIMARY KEY(id_voiture)
  
 # FOREIGN KEY (id_conducteur) REFERENCES TO utilisateur(id)
     # ON DELETE CASCADE
@@ -53,7 +54,7 @@ id_destinataire VARCHAR(45) NOT NULL,
 id_expediteur VARCHAR(45) NOT NULL,
 
 date VARCHAR(45) NOT NULL,
-heure VARCHAR(45) NOT NULL,
+heure VARCHAR(45) NOT NULL
 
 # FOREIGN KEY (id_destinataire) REFERENCES TO utilisateur(id)
     # ON DELETE CASCADE
@@ -72,32 +73,11 @@ id_destinataire VARCHAR(45) NOT NULL,
 id_expediteur VARCHAR(45) NOT NULL,
 
 date VARCHAR(45) NOT NULL,
-heure VARCHAR(45) NOT NULL,
+heure VARCHAR(45) NOT NULL
 
-FOREIGN KEY (id_destinataire) REFERENCES TO utilisateur(id)
-    ON DELETE CASCADE
-    ON UPDATE RESTRICT
-);
-
-
-# -------------------------------------------------------------------------------------------------------
-# Instruction pour créer la table ou seront stockée les commentaires
-# --------------------------------------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS passager ( 
-
-
-id_trajet VARCHAR(45) NOT NULL,
-id_passager VARCHAR(45) NOT NULL,
-
-
-FOREIGN KEY (id_passager) REFERENCES TO utilisateur(id)
-    ON DELETE CASCADE
-    ON UPDATE RESTRICT,
-
-FOREIGN KEY (id_trajet) REFERENCES TO trajet(id_trajet)
-    ON DELETE CASCADE
-    ON UPDATE RESTRICT
-
+# FOREIGN KEY (id_destinataire) REFERENCES TO utilisateur(id)
+#    ON DELETE CASCADE
+#    ON UPDATE RESTRICT
 );
 
 
@@ -107,13 +87,12 @@ FOREIGN KEY (id_trajet) REFERENCES TO trajet(id_trajet)
 # --------------------------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS trajet ( 
 
-
-id_trajet VARCHAR(45) NOT NULL AUTO_INCREMENT ,
+id_trajet INTEGER NOT NULL AUTO_INCREMENT,
 id_conducteur VARCHAR(45) NOT NULL,
 
 ville_depart VARCHAR(45) NOT NULL,
 ville_arrive VARCHAR(45) NOT NULL,
-
+        
 date VARCHAR(45) NOT NULL,
 heure VARCHAR(45) NOT NULL,
 
@@ -124,10 +103,57 @@ nb_place INTEGER NOT NULL,
 
 PRIMARY KEY(id_trajet) 
 
-FOREIGN KEY (id_conducteur) REFERENCES TO utilisateur(id)
-    ON DELETE CASCADE
-    ON UPDATE RESTRICT,
+# FOREIGN KEY (id_conducteur) REFERENCES TO utilisateur(id)
+#    ON DELETE CASCADE
+#    ON UPDATE RESTRICT,
+);
 
+
+# -------------------------------------------------------------------------------------------------------
+# Instruction pour créer la table ou seront stockée les commentaires
+# --------------------------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS passager ( 
+
+
+id_trajet INTEGER NOT NULL,
+id_passager VARCHAR(45) NOT NULL
+
+
+# FOREIGN KEY (id_passager) REFERENCES TO utilisateur(id)
+#    ON DELETE CASCADE
+#    ON UPDATE RESTRICT,
+
+# FOREIGN KEY (id_trajet) REFERENCES TO trajet(id_trajet)
+#    ON DELETE CASCADE
+#    ON UPDATE RESTRICT
 
 );
 
+
+ALTER TABLE utilisateur ADD CONSTRAINT idVoitureU FOREIGN KEY (id_voiture) REFERENCES voiture(id_voiture)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT ;
+
+ALTER TABLE voiture ADD CONSTRAINT idVoitureV FOREIGN KEY (id_conducteur) REFERENCES utilisateur(id)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT ;
+
+ALTER TABLE appreciation ADD CONSTRAINT idAppreciation FOREIGN KEY (id_destinataire) REFERENCES utilisateur(id)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT ;
+
+ALTER TABLE message ADD CONSTRAINT idMessage FOREIGN KEY (id_destinataire) REFERENCES utilisateur(id)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT ;
+
+ALTER TABLE passager ADD CONSTRAINT idPassagerU FOREIGN KEY (id_passager) REFERENCES utilisateur(id)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT ;
+
+ALTER TABLE passager ADD CONSTRAINT idPassagerT FOREIGN KEY (id_trajet) REFERENCES trajet(id_trajet)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT ;
+
+ALTER TABLE trajet ADD CONSTRAINT idTrajet FOREIGN KEY (id_conducteur) REFERENCES utilisateur(id)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT ;
