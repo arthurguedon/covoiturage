@@ -63,7 +63,7 @@ heure VARCHAR(45) NOT NULL
 
 
 # -------------------------------------------------------------------------------------------------------
-# Instruction pour créer la table ou seront stockée les commentaires
+# Instruction pour créer la table ou seront stockée les messages
 # --------------------------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS message ( 
 
@@ -83,7 +83,7 @@ heure VARCHAR(45) NOT NULL
 
 
 # -------------------------------------------------------------------------------------------------------
-# Instruction pour créer la table ou seront stockée les commentaires
+# Instruction pour créer la table ou seront stockée les trajets
 # --------------------------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS trajet ( 
 
@@ -110,7 +110,7 @@ PRIMARY KEY(id_trajet)
 
 
 # -------------------------------------------------------------------------------------------------------
-# Instruction pour créer la table ou seront stockée les commentaires
+# Instruction pour créer la table ou seront stockée les passagers
 # --------------------------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS passager ( 
 
