@@ -7,27 +7,23 @@ include("connection_bd.php");
 if (isset ($_POST["id"])){ 
         $utilisateurValide=true;
         
-        /* recuperer la liste des id d'utilisateur deja existant pour tester que l'id n'existe pas deja*/
-        $requete="SELECT id FROM UTILISATEUR";
-        $resultat=  mysqli_query($database, $requete);
-              
+        
+        /* recuperer l'id de de la base de donnee si on recupere rien 
+         * - l'id n'existe pas dans la base => ok 
+         * si on recupere quelque chose 
+         * - l'id existe deja => probleme d'unicité */
+        $requete="SELECT id FROM UTILISATEUR WHERE `id` = '".$_POST['id']."'";
+        $resultat=  mysqli_query($database, $requete);       
         if($resultat){  
             echo "OK, requete correct <br>";
-
             while($ligne=  mysqli_fetch_array($resultat,MYSQLI_ASSOC)){
                 $tableau_id[]= $ligne["id"];
-            }
-            
-            if (empty($tableau_id)){
-                echo"la base de donne est vide<br>";
-            }else{
-                print_r($tableau_id); echo"<br>";
-            }
-            
+            }            
         }else{
             echo "KO, requete incorrect<br>";
             echo(mysqli_error($database));
         }
+        
         
         /* VERIFICATION DE LA JUSTESSE DE CHAQUE ELEMENT DU FORMULAIRE */
         /* - si vide 
@@ -35,19 +31,17 @@ if (isset ($_POST["id"])){
          * - ne pas interpréter les balises et caractere speciaux */
         
         if (empty($_POST["id"]) ){
+            $utilisateurValide=false; 
+            echo"l'id est non valide : vide <br>";                
+        }elseif(!empty($tableau_id)){
             $utilisateurValide=false;
-            echo"l'id est non valide : vide <br>";              
-        }elseif (!empty($tableau_id)){ // verifier cas ou $tableau_id est vide
-            if(in_array($_POST["id"],$tableau_id)){
-            $utilisateurValide=false;
-            echo"l'id est non valide : id deja existant <br>";
-            }           
-        }else {
-            echo "id valide<br>";
-            $id=  filter_var($_POST["id"],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            echo"l'id est non valide : id deja existant <br>";        
+        }else {               
+                echo "id valide<br>";
+                $id =  filter_var($_POST["id"],FILTER_SANITIZE_SPECIAL_CHARS);
         }
-        
 
+        
         if (empty($_POST["nom"]) ){
             $utilisateurValide=false;
             echo"le nom est non valide : vide <br>";
@@ -77,22 +71,17 @@ if (isset ($_POST["id"])){
             $mdp=  filter_var($_POST["mdp"],FILTER_SANITIZE_SPECIAL_CHARS);
         }
         
+        
         if (empty($_POST["annee_naissance"])) {
             $utilisateurValide=false;
-            echo"l'annee est non valide : vide<br>";
-        if (!is_int(intval($_POST["annee_naissance"]))){
+            echo"l'annee est non valide : vide<br>";                  
+        }elseif (!is_int($_POST["annee_naissance"])){
             $utilisateurValide=false;
-            echo"l'annee est non valide : ce n'est pas un nombre entier<br>";
-        }
-         
-        /* }elseif(filter_var($_GET["annee"], FILTER_VALIDATE_INT) !== true){
-            $avionValide=false;
-            echo"l'annee est non valide : ce n'est pas un nombre<br>";*/
+            echo"l'annee est non valide : ce n'est pas un nombre entier<br>";              
         }elseif (intval($_POST["annee_naissance"]) > ((date('Y'))-18) || intval($_POST["annee_naissance"]) < ((date('Y'))-100) ) {
-            $utilisateuValide=false;
-            echo"l'annee est non valide : date impossible doit etre comprise entre 1915 et l'annee actuel<br>";
-        }    
-        else{
+            $utilisateurValide=false;
+            echo"l'annee est non valide : date impossible doit etre comprise entre ". (date('Y')-100) ." et l'annee actuel<br>";
+        }else{
             echo "annee valide<br>";
             $annee_naissance=intval($_POST["annee_naissance"]);
         }
@@ -113,20 +102,25 @@ if (isset ($_POST["id"])){
                 $extension = pathinfo($_FILES['image']["name"], PATHINFO_EXTENSION);
                 echo ("extension du fichier : " . $extension . "<br>");
                 if (in_array($extension, $extension_valable)) {
-                    //on done un nom unique à l'image
-                    $_FILES['image']["name"] = uniqid('avatar_') . "." . $extension;
-                    if (move_uploaded_file($_FILES['image']['tmp_name'], $dossier_destination . $_FILES['image']["name"])) {
-                        echo "l'avatar est valide<br>" ;
-                        echo "l'avatar a bien ete uploade dans le dossier du serveur<br> <br>";
-                                                
-                        $image= $_FILES['image']["name"]; // nom de l'image avec l'extension
-                        
-                        echo ('<img src=' . $dossier_destination . $_FILES['image']['name'] . ' " height="50" width="100" ">' );
-                        echo "<br><br>";
-                    } else {
-                        echo "/!\ erreur : l'image de l'avatar n a pas pu etre deplacee sur le serveur <br>";
+                    if ($_FILES['image']['size'] < 100000){ //taille max en octets = 100 Ko
+                            //on done un nom unique à l'image
+                            $_FILES['image']["name"] = uniqid('avatar_') . "." . $extension;
+                            if (move_uploaded_file($_FILES['image']['tmp_name'], $dossier_destination . $_FILES['image']["name"])) {
+                                echo "l'avatar est valide<br>" ;
+                                echo "l'avatar a bien ete uploade dans le dossier du serveur<br> <br>";
+
+                                $image= $_FILES['image']["name"]; // nom de l'image avec l'extension
+
+                                echo ('<img src=' . $dossier_destination . $_FILES['image']['name'] . ' " height="50" width="100" ">' );
+                                echo "<br><br>";
+                            } else {
+                                echo "/!\ erreur : l'image de l'avatar n a pas pu etre deplacee sur le serveur <br>";
+                                $utilisateurValide=false;
+                            }
+                    }else{
+                        echo "/!\ avatar non valide : taille max 100 Ko depassé<br>";
                         $utilisateurValide=false;
-                    }
+                    }                          
                 } else {
                     echo "/!\ avatar non valide : extension non valide <br>";
                     $utilisateurValide=false;
@@ -139,9 +133,10 @@ if (isset ($_POST["id"])){
     }
     
     $cagnote=0;
+    $id_voiture=null;
     
     if ($utilisateurValide==true){
-            $requete="insert into UTILISATEUR values (\"$nom\", \"$prenom\",$annee_naissance, \"$id\",\"$mdp\",\"$image\", $cagnote)";
+            $requete="insert into UTILISATEUR values (\"$nom\", \"$prenom\",$annee_naissance, \"$id\",\"$mdp\",\"$image\", $cagnote, NULL)";
             $resultat=  mysqli_query($database, $requete);
             if ($resultat){
                 echo"OK, inclusion dans la base de donnee<br>";
@@ -152,49 +147,12 @@ if (isset ($_POST["id"])){
     }
 } else {
 
-}        
+}     
+
+mysqli_close($database);
+
 ?>
 
-<html>
-    <head>       
-        <meta charset="UTF-8"> 
-            <?php /* penser à Bien completer le HEAD à chaque fois */ ?>
-    </head>
-    <body>
-           <h1>INSCRIPTION</h1>
-           
-           <form method="post" action="formulaire_inscription.php" enctype="multipart/form-data">
-            
-               
-            <label> nom :</label>
-            <input type ='text' name="nom" value=""/>
-            <p/>
-            
-            <label> prenom :</label>
-            <input type ='text' name="prenom" value=""/>
-            <p/>
-            
-            <label> annee de naissance :</label>
-            <input type ='text' name="annee_naissance" value=""/>
-            <p/>
-            
-            <label> identifiant :</label>
-            <input type ='text' name="id" value=""/>
-            <p/>
-            
-            <label> mot de passe :</label>
-            <input type ='password' name="mdp" value=""/>
-            <p/>
-            
-            <label> Choisissez un avatar : </label>
-            <input type="file" name="image" >             
-            <p/>
-            
-              <input type="submit" value ="soumettre"/>
-              <input type="reset" value="annuler"/>
-           </form>
-           <p> <a href="../tp02/tp02_exo2.html"> retour à l'acceuil </a> </p>
-    </body>
-</html>
+
 
 
