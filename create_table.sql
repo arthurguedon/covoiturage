@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS voiture (
 marque VARCHAR(45) NOT NULL, 
 couleur VARCHAR(45) NOT NULL,
 annee_mise_en_fonction INTEGER NOT NULL, 
+nb_place_max INTEGER NOT NULL,
 
 id_voiture INTEGER NOT NULL AUTO_INCREMENT, 
 id_conducteur VARCHAR(45) NOT NULL, 
@@ -43,7 +44,7 @@ PRIMARY KEY(id_voiture)
 
 
 # -------------------------------------------------------------------------------------------------------
-# Instruction pour créer la table ou seront stockée les commentaires
+# Instruction pour créer la table ou seront stockée les appreciations
 # --------------------------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS appreciation ( 
 
