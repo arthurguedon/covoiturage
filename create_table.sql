@@ -94,7 +94,7 @@ id_conducteur VARCHAR(45) NOT NULL,
 ville_depart VARCHAR(45) NOT NULL,
 ville_arrivee VARCHAR(45) NOT NULL,
         
-date VARCHAR(45) NOT NULL,
+date DATE NOT NULL,
 heure VARCHAR(45) NOT NULL,
 
 prix INTEGER NOT NULL,
